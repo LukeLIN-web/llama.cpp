@@ -32,7 +32,7 @@ static void print_usage(int argc, char ** argv, const gpt_params & params) {
     gpt_params_print_usage(argc, argv, params);
 
     LOG_TEE("\nexample usage:\n");
-    LOG_TEE("\n    %s -m model.gguf -c 2048 -b 2048 -ub 512 -npp 128,256,512 -ntg 128,256 -npl 1,2,4,8,16,32 [-pps]\n", argv[0]);
+    LOG_TEE("\n    %s -m model.gguf -c 2048 -b 2048 -ub 512 -npp 128,256,512 -ntg 128,256 -npl 1,2,4,8,16,32 [-pps]\n", argv[0]); // what is c, ub ?
     LOG_TEE("\n");
 }
 

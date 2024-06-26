@@ -7293,7 +7293,7 @@ static struct ggml_tensor * llm_build_kqv(
     const int64_t n_embd_v_gqa  = hparams.n_embd_v_gqa();
 
     struct ggml_tensor * q = ggml_permute(ctx, q_cur, 0, 2, 1, 3);
-    cb(q, "q", il);
+    cb(q, "q", il); // what? 
 
     struct ggml_tensor * k =
         ggml_view_3d(ctx, kv.k_l[il],
@@ -7309,7 +7309,7 @@ static struct ggml_tensor * llm_build_kqv(
         GGML_UNUSED(model);
         GGML_UNUSED(n_ctx);
 
-        // split cached v into n_head heads (not transposed)
+        // split cached v into n_head heads (not transposed) why? 
         struct ggml_tensor * v =
             ggml_view_3d(ctx, kv.v_l[il],
                     n_embd_head_v, n_kv, n_head_kv,
@@ -11992,9 +11992,10 @@ static struct ggml_cgraph * llama_build_graph_s_copy(llama_context & lctx) {
     return result;
 }
 
+// 完成每个算子的构造，同时完成每个 Tensor 的内存位置申请和引用。
 static struct ggml_cgraph * llama_build_graph(
-         llama_context & lctx,
-     const llama_batch & batch,
+         llama_context & lctx, // 存放着一些模型信息，包括模型文件、超参数等
+     const llama_batch & batch, //需要去处理的tokens, embeddings input
                   bool   worst_case) {
     const auto & model = lctx.model;
 

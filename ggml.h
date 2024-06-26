@@ -575,6 +575,9 @@ extern "C" {
         struct ggml_backend_buffer * buffer;
 
         int64_t ne[GGML_MAX_DIMS]; // number of elements
+        //这就是tensor的shape,不过它的存放方式是倒着的
+                                   //比如[batch_size,multi-head,seq_len,head-dim] 
+        //他的存储方式是ne[0]=head-dim,ne[1]=seq_len,ne[2]=multi-head,ne[3]=batch_size
         size_t  nb[GGML_MAX_DIMS]; // stride in bytes:
                                    // nb[0] = ggml_type_size(type)
                                    // nb[1] = nb[0]   * (ne[0] / ggml_blck_size(type)) + padding
