@@ -1907,7 +1907,7 @@ static void ggml_vec_dot_f16(int n, float * restrict s, size_t bs, ggml_fp16_t *
     ggml_float sumf = 0.0;
 
 #if defined(GGML_SIMD)
-    const int np = (n & ~(GGML_F16_STEP - 1));
+    const int np = (n & ~(GGML_F16_STEP - 1)); // >31才会有值. 
 
     GGML_F16_VEC sum[GGML_F16_ARR] = { GGML_F16_VEC_ZERO };
 
@@ -6954,11 +6954,11 @@ struct ggml_tensor * ggml_flash_attn_ext(
 
     if (mask) {
         GGML_ASSERT(ggml_is_contiguous(mask));
-        GGML_ASSERT(mask->ne[2] == 1);
+        GGML_ASSERT(mask->ne[2] == 1);//ne[2]=multi-head,ne[3]=batch_size. 为啥这两个=1 ?
         GGML_ASSERT(mask->ne[3] == 1);
         GGML_ASSERT(mask->ne[1] >= GGML_PAD(q->ne[1], GGML_KQ_MASK_PAD) &&
                 "the Flash-Attention kernel requires the mask to be padded to GGML_KQ_MASK_PAD and at least n_queries big");
-        //GGML_ASSERT(ggml_can_repeat_rows(mask, qk));
+        //GGML_ASSERT(ggml_can_repeat_rows(mask, qk)); // ne[1]=seq_len
     }
 
     if (max_bias > 0.0f) {

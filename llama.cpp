@@ -7292,7 +7292,7 @@ static struct ggml_tensor * llm_build_kqv(
     const int64_t n_embd_head_v = hparams.n_embd_head_v;
     const int64_t n_embd_v_gqa  = hparams.n_embd_v_gqa();
 
-    struct ggml_tensor * q = ggml_permute(ctx, q_cur, 0, 2, 1, 3);
+    struct ggml_tensor * q = ggml_permute(ctx, q_cur, 0, 2, 1, 3);// why 
     cb(q, "q", il); // what? 
 
     struct ggml_tensor * k =

@@ -2155,7 +2155,7 @@ typedef void (flash_attn_ext_f16_t)(
         ushort tiisg[[thread_index_in_simdgroup]],
         ushort sgitg[[simdgroup_index_in_threadgroup]]);
 
-// ref: https://arxiv.org/pdf/2307.08691.pdf
+// ref: https://arxiv.org/pdf/2307.08691.pdf  paper is flashattention 2, but they don't have tensorcore?
 template<int64_t D, int64_t Q = 8, int64_t C = 32> // head size, queries per threadgroup, cache items per threadgroup
 kernel void kernel_flash_attn_ext_f16(
         device const  char * q,

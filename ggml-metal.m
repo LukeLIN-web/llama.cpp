@@ -2717,7 +2717,7 @@ static enum ggml_status ggml_metal_graph_compute(
                                 if (smem > ctx->device.maxThreadgroupMemoryLength) {
                                     break;
                                 }
-                                nsgmax *= 2;
+                                nsgmax *= 2;// 二分法寻找sharememory的大小
                             }
                             nsgmax /= 2;
 
