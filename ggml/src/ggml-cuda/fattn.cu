@@ -330,7 +330,8 @@ void ggml_cuda_flash_attn_ext(ggml_backend_cuda_context & ctx, ggml_tensor * dst
         }
         return;
     }
-
+    // seqlen为1  headsize % (2*WARP_SIZE) == 0
+    //ne[1]  一般是多少? 
     if (Q->ne[1] == 1 && Q->ne[0] % (2*WARP_SIZE) == 0) {
         if (precision == GGML_PREC_DEFAULT) {
             ggml_cuda_flash_attn_ext_vec_f16(ctx, dst);
