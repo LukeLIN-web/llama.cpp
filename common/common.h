@@ -200,6 +200,7 @@ struct gpt_params {
     std::string public_path   = "";
     std::string chat_template = "";
     std::string system_prompt = "";
+    bool enable_chat_template = true;
 
     std::vector<std::string> api_keys;
 
@@ -250,6 +251,8 @@ struct gpt_params {
     std::string cvector_outfile       = "control_vector.gguf";
     std::string cvector_positive_file = "examples/cvector-generator/positive.txt";
     std::string cvector_negative_file = "examples/cvector-generator/negative.txt";
+
+    bool spm_infill = false; // suffix/prefix/middle pattern for infill
 };
 
 void gpt_params_handle_model_default(gpt_params & params);
@@ -456,4 +459,3 @@ void yaml_dump_string_multiline(FILE * stream, const char * prop_name, const cha
 void yaml_dump_non_result_info(
     FILE * stream, const gpt_params & params, const llama_context * lctx,
     const std::string & timestamp, const std::vector<int> & prompt_tokens, const char * model_desc);
-

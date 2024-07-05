@@ -42,6 +42,10 @@ endif()
 
 option(BUILD_SHARED_LIBS "build shared libraries" ${BUILD_SHARED_LIBS_DEFAULT})
 
+if (WIN32)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 #
 # option list
 #
@@ -79,8 +83,15 @@ set(GGML_SANITIZE_ADDRESS   ${LLAMA_SANITIZE_ADDRESS})
 set(GGML_SANITIZE_UNDEFINED ${LLAMA_SANITIZE_UNDEFINED})
 set(GGML_ALL_WARNINGS       ${LLAMA_ALL_WARNINGS})
 set(GGML_FATAL_WARNINGS     ${LLAMA_FATAL_WARNINGS})
-set(GGML_LLAMAFILE          ON)
-set(GGML_CUDA_USE_GRAPHS    ON)
+
+# change the default for these ggml options
+if (NOT DEFINED GGML_LLAMAFILE)
+    set(GGML_LLAMAFILE ON)
+endif()
+
+if (NOT DEFINED GGML_CUDA_USE_GRAPHS)
+    set(GGML_CUDA_USE_GRAPHS ON)
+endif()
 
 # transition helpers
 function (llama_option_depr TYPE OLD NEW)
@@ -145,7 +156,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/llama-config.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/llama)
 
 install(
-    FILES convert-hf-to-gguf.py
+    FILES convert_hf_to_gguf.py
     PERMISSIONS
         OWNER_READ
         OWNER_WRITE
