@@ -2835,7 +2835,7 @@ static enum ggml_status ggml_metal_graph_compute(
         // op name, src0 name, src0 shape , src1 name,  src1 shape, completed Time
             [command_buffer addCompletedHandler:^(id<MTLCommandBuffer>  command_buffer) {
                 CFAbsoluteTime endGPUExecution = CFAbsoluteTimeGetCurrent();
-                NSLog(@",%s, %s , %s , (%i; %i;%i; %i),  %s, (%i; %i;%i; %i), %.2f",
+                NSLog(@",%s, %s , %s , (%i; %i;%i; %i),  %s, (%i; %i;%i; %i), %f",
                 ggml_type_name(dstt),
                 ggml_op_desc(dst),
                 src0->name,
