@@ -2829,8 +2829,9 @@ static enum ggml_status ggml_metal_graph_compute(
             if (should_capture) {
                 [encoder popDebugGroup];
             }
+            // begin profiling
             CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent();
-        // begin profiling
+        
         // compelted time unit is  ms 
         // op name, src0 name, src0 shape , src1 name,  src1 shape, completed Time
             [command_buffer addCompletedHandler:^(id<MTLCommandBuffer>  command_buffer) {
@@ -2844,6 +2845,7 @@ static enum ggml_status ggml_metal_graph_compute(
                 src1? ne10:0, src1? ne11:0, src1? ne12:0, src1? ne13:0,
                 1000*(endGPUExecution - startCommitTime));
             }];
+            // end profiling
         }
 
 
