@@ -1,6 +1,7 @@
 import os
 import csv
 import pandas as pd
+from io import StringIO
 
 def grep_op_name_to_csv(input_filename, output_filename):
     with open(input_filename, 'r') as infile, open(output_filename, 'w') as outfile:
@@ -69,15 +70,51 @@ def grepnofa(input_filename, output_filename):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+def grepbench(input_filename, output_filename):
+
+
+    with open(input_filename, 'r') as file:
+        data_str = file.read()
+
+    data_io = StringIO(data_str)
+
+    # Read the data with delimiter '|'
+    reader = csv.reader(data_io, delimiter='|')
+
+    # Skip the first two rows (header and separator)
+    next(reader)  # header row
+    next(reader)  # separator row
+
+    with open(output_filename, mode='w', newline='') as f:
+        writer = csv.writer(f)
+        # Write header
+        writer.writerow(["model", "size", "params", "backend", "ngl", "fa", "test", "t/s"])
+        for row in reader:
+            if len(row) > 1:
+                # Extract and clean each field
+                fields = [field.strip() for field in row if field.strip()]
+
+                # Split the last field into two columns based on '±' delimiter
+                if len(fields) >= 8:
+                    last_field = fields[-1]
+                    split_fields = last_field.split('±', 1)
+                    fields = fields[:-1] + split_fields
+
+                writer.writerow(fields)
+
+    print(f"grep bench data written to {output_filename}")
+
+
 if __name__ == "__main__":
     logs_dir = './logs/'
 
-    grep_op_name_to_csv(os.path.join(logs_dir, 'fa.log'), os.path.join(logs_dir, 'fa.csv'))
-    grep_firstlast30(os.path.join(logs_dir, 'fa.csv'), os.path.join(logs_dir, 'fa_30.csv'))
-    diff_files(os.path.join(logs_dir, 'fa_30.csv'), os.path.join(logs_dir, 'faop.csv'))
-    grep_flash_attn_ext(os.path.join(logs_dir, 'faop.csv'), os.path.join(logs_dir, 'faoptime.csv'))
+    # grep_op_name_to_csv(os.path.join(logs_dir, 'fa.log'), os.path.join(logs_dir, 'fa.csv'))
+    # grep_firstlast30(os.path.join(logs_dir, 'fa.csv'), os.path.join(logs_dir, 'fa_30.csv'))
+    # diff_files(os.path.join(logs_dir, 'fa_30.csv'), os.path.join(logs_dir, 'faop.csv'))
+    # grep_flash_attn_ext(os.path.join(logs_dir, 'faop.csv'), os.path.join(logs_dir, 'faoptime.csv'))
 
-    grep_op_name_to_csv(os.path.join(logs_dir, 'nofa.log'), os.path.join(logs_dir, 'nofa.csv'))
-    grep_firstlast30(os.path.join(logs_dir, 'nofa.csv'), os.path.join(logs_dir, 'nofa_30.csv'))
-    diff_files(os.path.join(logs_dir, 'nofa_30.csv'), os.path.join(logs_dir, 'nofaop.csv'))
-    grepnofa(os.path.join(logs_dir, 'nofaop.csv'), os.path.join(logs_dir, 'nofaoptime.csv'))
+    # grep_op_name_to_csv(os.path.join(logs_dir, 'nofa.log'), os.path.join(logs_dir, 'nofa.csv'))
+    # grep_firstlast30(os.path.join(logs_dir, 'nofa.csv'), os.path.join(logs_dir, 'nofa_30.csv'))
+    # diff_files(os.path.join(logs_dir, 'nofa_30.csv'), os.path.join(logs_dir, 'nofaop.csv'))
+    # grepnofa(os.path.join(logs_dir, 'nofaop.csv'), os.path.join(logs_dir, 'nofaoptime.csv'))
+    grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))

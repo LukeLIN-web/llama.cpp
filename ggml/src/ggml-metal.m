@@ -2829,22 +2829,22 @@ static enum ggml_status ggml_metal_graph_compute(
             if (should_capture) {
                 [encoder popDebugGroup];
             }
-            // begin profiling
-            CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent();
-        
-        // compelted time unit is  ms 
-        // op name, src0 name, src0 shape , src1 name,  src1 shape, completed Time
-            [command_buffer addCompletedHandler:^(id<MTLCommandBuffer>  command_buffer) {
-                CFAbsoluteTime endGPUExecution = CFAbsoluteTimeGetCurrent();
-                NSLog(@",%s, %s , %s , (%i; %i;%i; %i),  %s, (%i; %i;%i; %i), %f",
-                ggml_type_name(dstt),
-                ggml_op_desc(dst),
-                src0->name,
-                ne00, ne01, ne02, ne03,
-                src1? src1->name: "",
-                src1? ne10:0, src1? ne11:0, src1? ne12:0, src1? ne13:0,
-                1000*(endGPUExecution - startCommitTime));
-            }];
+
+        // begin profiling
+        //     CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent();
+        // // compelted time unit is  ms 
+        // // op name, src0 name, src0 shape , src1 name,  src1 shape, completed Time
+        //     [command_buffer addCompletedHandler:^(id<MTLCommandBuffer>  command_buffer) {
+        //         CFAbsoluteTime endGPUExecution = CFAbsoluteTimeGetCurrent();
+        //         NSLog(@",%s, %s , %s , (%i; %i;%i; %i),  %s, (%i; %i;%i; %i), %f",
+        //         ggml_type_name(dstt),
+        //         ggml_op_desc(dst),
+        //         src0->name,
+        //         ne00, ne01, ne02, ne03,
+        //         src1? src1->name: "",
+        //         src1? ne10:0, src1? ne11:0, src1? ne12:0, src1? ne13:0,
+        //         1000*(endGPUExecution - startCommitTime));
+        //     }];
             // end profiling
         }
 
