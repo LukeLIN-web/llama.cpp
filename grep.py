@@ -1,6 +1,8 @@
 import os
 import csv
 import pandas as pd
+import re
+import sys
 from io import StringIO
 
 def grep_op_name_to_csv(input_filename, output_filename):
@@ -104,6 +106,34 @@ def grepbench(input_filename, output_filename):
 
     print(f"grep bench data written to {output_filename}")
 
+def extract_last(input_filename,output_filename):
+    extracted_numbers = []
+    tgnum = []
+    line_step = 5
+
+    with open(input_filename, 'r') as file:
+        lines = file.readlines()
+        for i in range(0, len(lines), line_step):
+            if i < len(lines):
+                floats = re.findall(r'\d+\.\d+', lines[i])
+                if floats:
+                    last_float = float(floats[-1])  # Find all floats and get the last one
+                    extracted_numbers.append(last_float)
+        for i in range(1, len(lines), line_step):
+            if i < len(lines):
+                floats = re.findall(r'\d+\.\d+', lines[i])
+                if floats:
+                    last_float = float(floats[-1])  # Find all floats and get the last one
+                    tgnum.append(last_float)
+
+    ppavg = sum(extracted_numbers) / len(extracted_numbers)
+    tgavg = sum(tgnum) / len(tgnum)
+
+    with open(output_filename, 'a') as file:
+        file.write(f"input_filename, {input_filename}\n")
+        file.write(f"pp Average, {ppavg:.2f}\n")
+        file.write(f"tg Average, {tgavg:.2f}\n")
+
 
 if __name__ == "__main__":
     logs_dir = './logs/'
@@ -117,4 +147,9 @@ if __name__ == "__main__":
     # grep_firstlast30(os.path.join(logs_dir, 'nofa.csv'), os.path.join(logs_dir, 'nofa_30.csv'))
     # diff_files(os.path.join(logs_dir, 'nofa_30.csv'), os.path.join(logs_dir, 'nofaop.csv'))
     # grepnofa(os.path.join(logs_dir, 'nofaop.csv'), os.path.join(logs_dir, 'nofaoptime.csv'))
-    grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))
+
+    # grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))
+    
+    input_filename = sys.argv[1]
+    extract_last(input_filename,os.path.join(logs_dir, 'avgtime.csv'))
+    # extract_last(os.path.join('./logs/meta-l1fa30.log'))
