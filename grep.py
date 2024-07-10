@@ -28,7 +28,6 @@ def grep_firstlast30(input_filename, output_filename):
 
     first_30_lines = lines[:30] 
     last_30_lines = lines[-30:]
-    relevant_lines = first_30_lines + last_30_lines
 
     with open(output_filename, 'w') as outfile:
         for line in first_30_lines:
@@ -66,6 +65,13 @@ def grepnofa(input_filename, output_filename):
                 grep_results.extend(lines_to_append)
                 grep_results.append(new_line)    
 
+        firstlayer = df.iloc[0:24, 7].sum()
+        lastlayer = df.iloc[-27:-2, 7].sum()        
+
+        print(f"Sum of column 8 from line 1 to 22: {firstlayer}")
+        print(f"Sum of column 8 from line -26 to -3: {lastlayer}")
+        
+
         grep_df = pd.DataFrame(grep_results)
         grep_df.to_csv(output_filename, index=False, header=False, float_format='%.6f')
         print(f"grepnofa written to {output_filename}")
@@ -73,30 +79,22 @@ def grepnofa(input_filename, output_filename):
         print(f"An error occurred: {e}")
 
 def grepbench(input_filename, output_filename):
-
-
     with open(input_filename, 'r') as file:
         data_str = file.read()
 
     data_io = StringIO(data_str)
-
-    # Read the data with delimiter '|'
     reader = csv.reader(data_io, delimiter='|')
 
-    # Skip the first two rows (header and separator)
     next(reader)  # header row
     next(reader)  # separator row
 
     with open(output_filename, mode='w', newline='') as f:
         writer = csv.writer(f)
-        # Write header
         writer.writerow(["model", "size", "params", "backend", "ngl", "fa", "test", "t/s"])
         for row in reader:
             if len(row) > 1:
-                # Extract and clean each field
                 fields = [field.strip() for field in row if field.strip()]
 
-                # Split the last field into two columns based on '±' delimiter
                 if len(fields) >= 8:
                     last_field = fields[-1]
                     split_fields = last_field.split('±', 1)
@@ -137,19 +135,19 @@ def extract_last(input_filename,output_filename):
 
 if __name__ == "__main__":
     logs_dir = './logs/'
+    input_filename = sys.argv[1]
 
-    # grep_op_name_to_csv(os.path.join(logs_dir, 'fa.log'), os.path.join(logs_dir, 'fa.csv'))
-    # grep_firstlast30(os.path.join(logs_dir, 'fa.csv'), os.path.join(logs_dir, 'fa_30.csv'))
-    # diff_files(os.path.join(logs_dir, 'fa_30.csv'), os.path.join(logs_dir, 'faop.csv'))
-    # grep_flash_attn_ext(os.path.join(logs_dir, 'faop.csv'), os.path.join(logs_dir, 'faoptime.csv'))
+    input_filename_part = input_filename[13:16]
 
-    # grep_op_name_to_csv(os.path.join(logs_dir, 'nofa.log'), os.path.join(logs_dir, 'nofa.csv'))
-    # grep_firstlast30(os.path.join(logs_dir, 'nofa.csv'), os.path.join(logs_dir, 'nofa_30.csv'))
-    # diff_files(os.path.join(logs_dir, 'nofa_30.csv'), os.path.join(logs_dir, 'nofaop.csv'))
-    # grepnofa(os.path.join(logs_dir, 'nofaop.csv'), os.path.join(logs_dir, 'nofaoptime.csv'))
+    grep_op_name_to_csv(input_filename, os.path.join(logs_dir, f'{input_filename_part}.csv'))
+    grep_firstlast30(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}_30.csv'))
+    diff_files(os.path.join(logs_dir, f'{input_filename_part}_30.csv'), os.path.join(logs_dir, f'{input_filename_part}op.csv'))
+    if input_filename_part[0] =="1":
+        grep_flash_attn_ext(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
+    else:
+        grepnofa(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
 
     # grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))
     
-    input_filename = sys.argv[1]
-    extract_last(input_filename,os.path.join(logs_dir, 'avgtime.csv'))
-    # extract_last(os.path.join('./logs/meta-l1fa30.log'))
+
+    # extract_last(input_filename,os.path.join(logs_dir, 'avgtime.csv'))
