@@ -8,7 +8,7 @@ from io import StringIO
 def grep_op_name_to_csv(input_filename, output_filename):
     with open(input_filename, 'r') as infile, open(output_filename, 'w') as outfile:
         for line in infile:
-            if "llama-cli" in line:
+            if "llama-cli" in line and line.count(',') == 7:
                 outfile.write(line)
         print(f"grep_op_name_to_csv Output written to {output_filename}")
 
@@ -48,7 +48,6 @@ def diff_files(input_filename, output_filename):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-
 def grepnofa(input_filename, output_filename):
     try:
         df = pd.read_csv(input_filename, header=None, on_bad_lines="skip")
@@ -57,10 +56,10 @@ def grepnofa(input_filename, output_filename):
         for i in range(len(df)):
             if df.iloc[i, 2] == ' CONT ':
                 start_index = max(0, i - 3)
-                sum_column_8 = df.iloc[start_index:i+1, 7].sum()
+                sum_column_7 = df.iloc[start_index:i+1, 7].sum()
                 
                 lines_to_append = df.iloc[start_index:i+1].values.tolist()
-                new_line = lines_to_append[-1][:7] + [sum_column_8] + lines_to_append[-1][8:]
+                new_line = lines_to_append[-1][:7] + [sum_column_7] + lines_to_append[-1][8:]
                 new_line[0] = "sum"
                 grep_results.extend(lines_to_append)
                 grep_results.append(new_line)    
@@ -68,10 +67,9 @@ def grepnofa(input_filename, output_filename):
         firstlayer = df.iloc[0:24, 7].sum()
         lastlayer = df.iloc[-27:-2, 7].sum()        
 
-        print(f"Sum of column 8 from line 1 to 22: {firstlayer}")
-        print(f"Sum of column 8 from line -26 to -3: {lastlayer}")
+        print(f"first layer time : {firstlayer}")
+        print(f"Last layer time: {lastlayer}")
         
-
         grep_df = pd.DataFrame(grep_results)
         grep_df.to_csv(output_filename, index=False, header=False, float_format='%.6f')
         print(f"grepnofa written to {output_filename}")
@@ -133,6 +131,28 @@ def extract_last(input_filename,output_filename):
         file.write(f"tg Average, {tgavg:.2f}\n")
 
 
+def greplayers(input_filename, output_filename):
+    try:
+        df = pd.read_csv(input_filename, header=None, on_bad_lines="skip")
+        df[7] = df[7].diff()
+        
+        sums = []
+        num_rows = len(df) # 725
+        for i in range(num_rows - 725 - 2 - 13 , num_rows - 2 - 13, 23): #  last block
+            chunk = df.iloc[i:i+23]
+            layersum = df.iloc[i:i+23, 7].sum()
+            fouropsum = df.iloc[i+8:i+12, 7].sum()
+            print(df.iloc[i+8:i+12, 2])
+            sums.append(fouropsum/layersum)
+
+        with open(output_filename, 'w') as f:
+            for sum_value in sums:
+                f.write(f"{sum_value}\n")
+        print(f"greplayers written to {output_filename}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 if __name__ == "__main__":
     logs_dir = './logs/'
     input_filename = sys.argv[1]
@@ -146,8 +166,8 @@ if __name__ == "__main__":
         grep_flash_attn_ext(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
     else:
         grepnofa(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
-
-    # grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))
+        greplayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
     
-
+    
+    # grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))
     # extract_last(input_filename,os.path.join(logs_dir, 'avgtime.csv'))

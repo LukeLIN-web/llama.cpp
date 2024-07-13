@@ -25,9 +25,9 @@ run_llama() {
 
 runop(){
   maxlen=30
-  fa=1
-  # model_name="meta-llama-3-8b-instruct.Q4_K_M.gguf"
-  model_name="llama2_7b_chat_uncensored-q4_0.gguf"
+  fa=0
+  model_name="meta-llama-3-8b-instruct.Q4_K_M.gguf"
+  # model_name="llama2_7b_chat_uncensored-q4_0.gguf"
   logfile="./logs/${model_name:0:6}${fa}fa${maxlen}.log"
 
   if [ "$fa" == 1 ]; then

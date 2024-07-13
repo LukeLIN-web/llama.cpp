@@ -898,6 +898,7 @@ static enum ggml_status ggml_metal_graph_compute(
         const int node_start =                                      (cb_idx + 0) * n_nodes_per_cb;
         const int node_end   = MIN((cb_idx == n_cb - 1) ? n_nodes : (cb_idx + 1) * n_nodes_per_cb, n_nodes);
 
+        // addCompletedHandler 的开头
         for (int i = node_start; i < node_end; ++i) {
             if (i == -1) {
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -2833,10 +2834,10 @@ static enum ggml_status ggml_metal_graph_compute(
             // begin profiling
             // // compelted time unit is  ms 
             // // op name, src0 name, src0 shape , src1 name,  src1 shape, completed Time
-            CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent();
+            CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent(); //每32个block 更新一下. 怎么实现的? 
 
             [command_buffer addCompletedHandler:^(id<MTLCommandBuffer>  command_buffer) {
-                CFAbsoluteTime endGPUExecution = CFAbsoluteTimeGetCurrent();
+                CFAbsoluteTime endGPUExecution = CFAbsoluteTimeGetCurrent(); //每个算子 更新一下. 
                 NSLog(@",%s, %s , %s , (%i; %i;%i; %i),  %s, (%i; %i;%i; %i), %f",
                 ggml_type_name(dstt),
                 ggml_op_desc(dst),
