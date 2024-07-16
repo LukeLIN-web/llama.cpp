@@ -139,7 +139,6 @@ def greplayers(input_filename, output_filename):
         sums = []
         num_rows = len(df) # 725
         for i in range(num_rows - 725 - 2 - 13 , num_rows - 2 - 13, 23): #  last block
-            chunk = df.iloc[i:i+23]
             layersum = df.iloc[i:i+23, 7].sum()
             fouropsum = df.iloc[i+8:i+12, 7].sum()
             print(df.iloc[i+8:i+12, 2])

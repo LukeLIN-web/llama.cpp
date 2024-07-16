@@ -988,20 +988,6 @@ static enum ggml_status ggml_metal_graph_compute(
             id<MTLBuffer> id_src2 = src2 ? ggml_metal_get_buffer(src2, &offs_src2) : nil;
             id<MTLBuffer> id_dst  = dst  ? ggml_metal_get_buffer(dst,  &offs_dst)  : nil;
 
-            //GGML_METAL_LOG_INFO("%s: op - %s\n", __func__, ggml_op_name(dst->op));
-            //if (src0) {
-            //    GGML_METAL_LOG_INFO("%s: src0 - %4s [%5lld, %5lld, %5lld], %d, %s\n", __func__, ggml_type_name(src0t), ne00, ne01, ne02,
-            //            ggml_is_contiguous(src0), src0->name);
-            //}
-            //if (src1) {
-            //    GGML_METAL_LOG_INFO("%s: src1 - %4s [%5lld, %5lld, %5lld], %d, %s\n", __func__, ggml_type_name(src1t), ne10, ne11, ne12,
-            //            ggml_is_contiguous(src1), src1->name);
-            //}
-            //if (dst) {
-            //    GGML_METAL_LOG_INFO("%s: dst  - %4s [%5lld, %5lld, %5lld], 1, %s\n",  __func__, ggml_type_name(dstt),  ne0,  ne1,  ne2,
-            //            dst->name);
-            //}
-
             switch (dst->op) {
                 case GGML_OP_CONCAT:
                     {
@@ -1546,27 +1532,7 @@ static enum ggml_status ggml_metal_graph_compute(
                         // to the matrix-vector kernel
                         int ne11_mm_min = 1;
 
-#if 0
-                        // the numbers below are measured on M2 Ultra for 7B and 13B models
-                        // these numbers do not translate to other devices or model sizes
-                        // TODO: need to find a better approach
-                        if ([ctx->device.name isEqualToString:@"Apple M2 Ultra"]) {
-                            switch (src0t) {
-                                case GGML_TYPE_F16:  ne11_mm_min = 2;  break;
-                                case GGML_TYPE_Q8_0: ne11_mm_min = 7;  break;
-                                case GGML_TYPE_Q2_K: ne11_mm_min = 15; break;
-                                case GGML_TYPE_Q3_K: ne11_mm_min = 7;  break;
-                                case GGML_TYPE_Q4_0:
-                                case GGML_TYPE_Q4_1: ne11_mm_min = 15; break;
-                                case GGML_TYPE_Q4_K: ne11_mm_min = 11; break;
-                                case GGML_TYPE_Q5_0:                          // not tested yet
-                                case GGML_TYPE_Q5_1: ne11_mm_min = 13; break; // not tested yet
-                                case GGML_TYPE_Q5_K: ne11_mm_min = 7;  break;
-                                case GGML_TYPE_Q6_K: ne11_mm_min = 7;  break;
-                                default:             ne11_mm_min = 1;  break;
-                            }
-                        }
-#endif
+
 
                         // for now the matrix-matrix multiplication kernel only works on A14+/M1+ SoCs
                         // AMD GPU and older A-chips will reuse matrix-vector multiplication kernel
@@ -2832,7 +2798,7 @@ static enum ggml_status ggml_metal_graph_compute(
             }
 
             // begin profiling
-            // // compelted time unit is  ms 
+            // // compelted time unit is ms 
             // // op name, src0 name, src0 shape , src1 name,  src1 shape, completed Time
             CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent(); //每32个block 更新一下. 怎么实现的? 
 
