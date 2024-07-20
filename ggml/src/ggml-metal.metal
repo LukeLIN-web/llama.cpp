@@ -947,6 +947,9 @@ inline float block_q_n_dot_y(device const block_q5_1 * qb_curr, float sumy, thre
 //      quantizations where the block size is 32. It also does not
 //      guard against the number of rows not being divisible by
 //      N_DST, so this is another explicit assumption of the implementation.
+// nr is the number of rows in the block
+// nsg is the number of SIMD groups in a thread group
+// nw is the number of warps in a SIMD group
 template<typename block_q_type, int nr, int nsg, int nw>
 void mul_vec_q_n_f32_impl(
         device const void  * src0,
@@ -959,7 +962,7 @@ void mul_vec_q_n_f32_impl(
                    int64_t   ne12,
                    int64_t   ne0,
                    int64_t   ne1,
-                   uint      r2,
+                   uint      r2, // offset 
                    uint      r3,
         threadgroup int8_t * shared_values,
                    uint3 tgpig, uint tiisg, uint sgitg) {

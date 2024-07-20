@@ -11,6 +11,13 @@ def grep_op_name_to_csv(input_filename, output_filename):
             if "llama-cli" in line and line.count(',') == 7:
                 outfile.write(line)
         print(f"grep_op_name_to_csv Output written to {output_filename}")
+    try:
+        df = pd.read_csv(output_filename, header=None, on_bad_lines="skip")
+        df[7] = df[7].diff()
+        df.to_csv(output_filename, index=False, header=False,float_format='%.6f')
+        print(f"diff file saved as {output_filename}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def grep_flash_attn_ext(input_filename, output_filename):
     with open(input_filename, 'r') as infile:
@@ -40,8 +47,6 @@ def grep_firstlast30(input_filename, output_filename):
 def diff_files(input_filename, output_filename):
     try:
         df = pd.read_csv(input_filename, header=None, on_bad_lines="skip")
-        
-        df[7] = df[7].diff()
 
         df.to_csv(output_filename, index=False, header=False,float_format='%.6f')
         print(f"diff file saved as {output_filename}")
@@ -131,18 +136,38 @@ def extract_last(input_filename,output_filename):
         file.write(f"tg Average, {tgavg:.2f}\n")
 
 
-def greplayers(input_filename, output_filename):
+def grep4opslayers(input_filename, output_filename):
     try:
         df = pd.read_csv(input_filename, header=None, on_bad_lines="skip")
-        df[7] = df[7].diff()
         
         sums = []
         num_rows = len(df) # 725
         for i in range(num_rows - 725 - 2 - 13 , num_rows - 2 - 13, 23): #  last block
             layersum = df.iloc[i:i+23, 7].sum()
             fouropsum = df.iloc[i+8:i+12, 7].sum()
-            print(df.iloc[i+8:i+12, 2])
+            # print(df.iloc[i+8:i+12, 2])
+            print(df.iloc[i:i+23, 7])
+            # print(fouropsum)
+            print(layersum)
             sums.append(fouropsum/layersum)
+
+        with open(output_filename, 'w') as f:
+            for sum_value in sums:
+                f.write(f"{sum_value}\n")
+        print(f"greplayers written to {output_filename}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def grepfaoplayers(input_filename, output_filename):
+    try:
+        df = pd.read_csv(input_filename, header=None, on_bad_lines="skip")
+        
+        sums = []
+        num_rows = len(df) # 725
+        for i in range(num_rows - 725 - 2 - 20 , num_rows - 2-11, 20): #  last block
+            layersum = df.iloc[i:i+20, 7].sum()
+            print(df.iloc[i+11, 2])
+            sums.append(df.iloc[i+11, 7]/layersum)
 
         with open(output_filename, 'w') as f:
             for sum_value in sums:
@@ -160,12 +185,12 @@ if __name__ == "__main__":
 
     grep_op_name_to_csv(input_filename, os.path.join(logs_dir, f'{input_filename_part}.csv'))
     grep_firstlast30(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}_30.csv'))
-    diff_files(os.path.join(logs_dir, f'{input_filename_part}_30.csv'), os.path.join(logs_dir, f'{input_filename_part}op.csv'))
     if input_filename_part[0] =="1":
         grep_flash_attn_ext(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
+        grepfaoplayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
     else:
         grepnofa(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
-        greplayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
+        grep4opslayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
     
     
     # grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))
