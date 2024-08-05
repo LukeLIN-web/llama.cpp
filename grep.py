@@ -114,17 +114,17 @@ def extract_last(input_filename,output_filename):
 
     with open(input_filename, 'r') as file:
         lines = file.readlines()
-        for i in range(0, len(lines), line_step):
+        for i in range(0, len(lines)-1, line_step):
             if i < len(lines):
                 floats = re.findall(r'\d+\.\d+', lines[i])
                 if floats:
-                    last_float = float(floats[-1])  # Find all floats and get the last one
+                    last_float = float(floats[-1])  
                     extracted_numbers.append(last_float)
-        for i in range(1, len(lines), line_step):
+        for i in range(1, len(lines)-1, line_step):
             if i < len(lines):
                 floats = re.findall(r'\d+\.\d+', lines[i])
                 if floats:
-                    last_float = float(floats[-1])  # Find all floats and get the last one
+                    last_float = float(floats[-1]) 
                     tgnum.append(last_float)
 
     ppavg = sum(extracted_numbers) / len(extracted_numbers)
@@ -134,6 +134,7 @@ def extract_last(input_filename,output_filename):
         file.write(f"input_filename, {input_filename}\n")
         file.write(f"pp Average, {ppavg:.2f}\n")
         file.write(f"tg Average, {tgavg:.2f}\n")
+    print(f"extracted last written to {output_filename}")
 
 
 def grep4opslayers(input_filename, output_filename):
@@ -183,14 +184,16 @@ if __name__ == "__main__":
 
     input_filename_part = input_filename[13:16]
 
-    grep_op_name_to_csv(input_filename, os.path.join(logs_dir, f'{input_filename_part}.csv'))
-    grep_firstlast30(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}_30.csv'))
-    if input_filename_part[0] =="1":
-        grep_flash_attn_ext(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
-        grepfaoplayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
-    else:
-        grepnofa(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
-        grep4opslayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
+    extract_last(input_filename,os.path.join(logs_dir, 'avgtime.csv'))
+
+    # grep_op_name_to_csv(input_filename, os.path.join(logs_dir, f'{input_filename_part}.csv'))
+    # grep_firstlast30(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}_30.csv'))
+    # if input_filename_part[0] =="1":
+    #     grep_flash_attn_ext(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
+    #     grepfaoplayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
+    # else:
+    #     grepnofa(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
+    #     grep4opslayers(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}layers.csv'))
     
     
     # grepbench(os.path.join(logs_dir, 'bench.log'), os.path.join(logs_dir, 'bench.csv'))
