@@ -2555,6 +2555,7 @@ static enum ggml_status ggml_metal_graph_compute(
                     } break;
                 case GGML_OP_FLASH_ATTN_EXT:
                     {
+                        // src0 
                         GGML_ASSERT(ne00 % 4  == 0);
                         GGML_ASSERT(ne11 % 32 == 0);
 
@@ -2617,7 +2618,8 @@ static enum ggml_status ggml_metal_graph_compute(
                             }
                         } else {
                             use_vec_kernel = true;
-
+        // src0 ,  最后是batch size,   
+        // 分配计算, 所以要用最大长度. kvcache最多存256个tokens.
                             switch (ne00) {
                                 case 128: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_FLASH_ATTN_EXT_VEC_F16_H128].pipeline; break;
                               //case 256: pipeline = ctx->kernels[GGML_METAL_KERNEL_TYPE_FLASH_ATTN_EXT_VEC_F16_H256].pipeline; break;
@@ -2666,6 +2668,8 @@ static enum ggml_status ggml_metal_graph_compute(
 
                         if (!use_vec_kernel) {
                             // half8x8 kernel
+                            //nqptg到底是伪代码里的什么? query是什么? 
+                            // 分vec kernel和矩阵函数的好处是什么呢? 
                             const int64_t nqptg = 8;  // queries per threadgroup    !! sync with kernel template arguments !!
                             const int64_t ncpsg = 32; // cache values per simdgroup !! sync with kernel template arguments !!
 
@@ -2673,7 +2677,7 @@ static enum ggml_status ggml_metal_graph_compute(
                             GGML_ASSERT(nqptg  % 8  == 0);
                             GGML_ASSERT(ncpsg  % 32 == 0);
 
-                            int64_t nsgmax = 2;
+                            int64_t nsgmax = 2;// number of thread group
 
                             while (true) {
                                 const size_t smem = nqptg*(ne00 + 2*nsgmax*(ncpsg + nqptg))*(sizeof(float)/2);
@@ -2706,19 +2710,25 @@ static enum ggml_status ggml_metal_graph_compute(
 
                             // simdgroups per threadgroup (a.k.a. warps)
                             const int64_t nsgt = MAX(2, MIN(ne11/ncpsg, (int64_t) pipeline.maxTotalThreadsPerThreadgroup/32));
-
+                            //ne11是256 ,就是一行最大可能长度, 所以一个threadgroup算一行. 
+                            //pipeline.maxTotalThreadsPerThreadgroup/32是  可能的最大值. 
+                            //一个thread group处理一行, 一行128数. 一个simdgroup处理32个数. 一个thread处理4个数
                             int64_t nsg = 1;
                             while (nsg <= nsgt) {
                                 nsg *= 2;
                             }
                             nsg /= 2;
 
+                            // 有个K也有V, 所以要乘以2. ne00是128.nsg是1
                             const size_t smem = (nqptg*(ne00 + 2*nsg*(ncpsg + nqptg)) + nsg*ne00)*(sizeof(float)/2);
 
                             //printf("smem: %zu, max: %zu\n", smem, ctx->device.maxThreadgroupMemoryLength);
                             GGML_ASSERT(smem <= ctx->device.maxThreadgroupMemoryLength);
                             [encoder setThreadgroupMemoryLength:GGML_PAD(smem, 16) atIndex:0];
-
+                            
+                            //threadsPerThreadgroup 里面可以通讯, (ne01 + nqptg - 1)/nqptg, ne02, ne03)里面不能通讯. 
+                            // ne01是seq length =1 ,
+                            // 每个sg有 32 x nsg x1 个threads
                             [encoder dispatchThreadgroups:MTLSizeMake((ne01 + nqptg - 1)/nqptg, ne02, ne03) threadsPerThreadgroup:MTLSizeMake(32, nsg, 1)];
                         }
                     } break;

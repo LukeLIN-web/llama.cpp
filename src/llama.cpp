@@ -14451,7 +14451,7 @@ static int llama_decode_internal(
            llama_batch   batch_all) { // TODO: rename back to batch
 
     lctx.is_encoding = false;
-    const uint32_t n_tokens_all = batch_all.n_tokens;
+    const uint32_t n_tokens_all = batch_all.n_tokens; // batch size = 1 , 一次就一个
 
     if (n_tokens_all == 0) {
         LLAMA_LOG_ERROR("%s: n_tokens == 0", __func__);
@@ -14757,13 +14757,14 @@ static int llama_decode_internal(
 // return positive int on warning
 // return negative int on error
 //
+// 没有encode,为什么? 
 static int llama_encode_internal(
          llama_context & lctx,
            llama_batch   batch) {
 
     lctx.is_encoding = true;
 
-    const uint32_t n_tokens = batch.n_tokens;
+    const uint32_t n_tokens = batch.n_tokens; 
 
     if (n_tokens == 0) {
         LLAMA_LOG_ERROR("%s: n_tokens == 0", __func__);
@@ -14783,7 +14784,7 @@ static int llama_encode_internal(
         lctx.t_compute_start_us = ggml_time_us();
     }
 
-    lctx.n_queued_tokens += n_tokens;
+    lctx.n_queued_tokens += n_tokens; 
 
     const int64_t n_embd = hparams.n_embd;
 
@@ -18371,6 +18372,7 @@ void llama_synchronize(struct llama_context * ctx) {
     } else if (ctx->n_queued_tokens > 1) {
         ctx->t_p_eval_us += ggml_time_us() - ctx->t_compute_start_us;
         ctx->n_p_eval += ctx->n_queued_tokens;
+        printf("n_p_eval: %d\n", ctx->n_p_eval);
     }
 
     // get a more accurate load time, upon first eval

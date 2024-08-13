@@ -10,7 +10,8 @@ run_llama() {
   # model_name="meta-llama-3-8b-instruct.Q4_K_M.gguf"
   model_name="llama2_7b_chat_uncensored-q4_0.gguf"
   logfile="./logs/${model_name:0:6}${fa}fa${maxlen}.log"
-  for i in {1..5}; do
+  # for i in {1..5}; do
+  for i in {1..2}; do
     if [ "$fa" == 1 ]; then
       ./llama-cli -fa -m models/$model_name -p "Tybalt encounters Mercutio and Romeo at the beach.  Mercutio intervenes and batters Tybalt, and is about to kill him when Romeo stops him. Tybalt takes the opportunity to fatally wound Mercutio, who curses both houses before dying. Enraged, Romeo chases after the fleeing Tybalt and shoots him dead, avenging Mercutio’s death.Captain Prince banishes Romeo from the city, and he goes into hiding with Father Laurence. The nurse arrives and tells him that Juliet is waiting for him. Romeo climbs Juliet's balcony and they consummate their marriage, with Romeo departing the next morning. The next morning, Gloria informs Juliet that she is to marry Paris, and when Juliet refuses, Fulgencio physically assaults her and threatens to disown her. Juliet runs away and seeks out Father Laurence, imploring him to help her, while threatening to commit suicide. Father Laurence gives her a potion that will let her fake her own death, after which she will be " -n $maxlen > ./logs/tmp.log 2>&1
       # ./llama-cli -fa -m models/$model_name -p "The weather in boston"  -n $maxlen > ./logs/tmp.log 2>&1

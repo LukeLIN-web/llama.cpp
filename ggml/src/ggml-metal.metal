@@ -2383,6 +2383,7 @@ kernel void kernel_flash_attn_ext_vec_f16(
     threadgroup float  * ss  = (threadgroup float  *) (shared + 2*sgitg*SH + 1*D); // scratch buffer for attention and diagonal matrix
     threadgroup float4 * ss4 = (threadgroup float4 *) (shared + 2*sgitg*SH + 1*D); // same as above but in half4
     threadgroup half4  * sr4 = (threadgroup half4  *) (shared +   sgitg*D  + 1*T); // scratch buffer for the results
+    //scratch buffer 就是share memory
 
     // store the result for all queries in local memory in 8x8 matrices (the O matrix from the paper)
     half4 lo[D4/NW];
@@ -2464,14 +2465,15 @@ kernel void kernel_flash_attn_ext_vec_f16(
                     for (short ii = 0; ii < D4; ii += NW) {
                         const short i = ii + tiisg;
 
-                        half4x4 mk;
+                        half4x4 mk; //  每个thread算4个数?
                         mk[0] = pk4[i + 0*(nb11/8)];
                         mk[1] = pk4[i + 1*(nb11/8)];
                         mk[2] = pk4[i + 2*(nb11/8)];
                         mk[3] = pk4[i + 3*(nb11/8)];
 
-                        mqk += (float4) (mq[i] * mk);
+                        mqk += (float4) (mq[i] * mk); // 矩阵乘法?
                     }
+                    //一个simdgroup就是 128*4
 
                     // reduce the results from the threads in the simdgroup
                     mqk += simd_shuffle_down(mqk, 16);
