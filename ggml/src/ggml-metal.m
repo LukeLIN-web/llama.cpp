@@ -2811,20 +2811,20 @@ static enum ggml_status ggml_metal_graph_compute(
             // begin profiling
             // // compelted time unit is ms 
             // // op name, src0 name, src0 shape , src1 name,  src1 shape, completed Time
-            // CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent(); //每32个block 更新一下. 怎么实现的? 
+            CFAbsoluteTime startCommitTime = CFAbsoluteTimeGetCurrent(); //每32个block 更新一下. 怎么实现的? 
 
-            // [command_buffer addCompletedHandler:^(id<MTLCommandBuffer>  command_buffer) {
-            //     CFAbsoluteTime endGPUExecution = CFAbsoluteTimeGetCurrent(); //每个算子 更新一下. 
-            //     NSLog(@",%s, %s , %s , (%i; %i;%i; %i),  %s, (%i; %i;%i; %i), %f",
-            //     ggml_type_name(dstt),
-            //     ggml_op_desc(dst),
-            //     src0->name,
-            //     ne00, ne01, ne02, ne03,
-            //     src1? src1->name: "",
-            //     src1? ne10:0, src1? ne11:0, src1? ne12:0, src1? ne13:0,
-            //     1000*(endGPUExecution - startCommitTime));
-            // }];
-            // end profiling
+            [command_buffer addCompletedHandler:^(id<MTLCommandBuffer>  command_buffer) {
+                CFAbsoluteTime endGPUExecution = CFAbsoluteTimeGetCurrent(); //每个算子 更新一下. 
+                NSLog(@",%s, %s , %s , (%i; %i;%i; %i),  %s, (%i; %i;%i; %i), %f",
+                ggml_type_name(dstt),
+                ggml_op_desc(dst),
+                src0->name,
+                ne00, ne01, ne02, ne03,
+                src1? src1->name: "",
+                src1? ne10:0, src1? ne11:0, src1? ne12:0, src1? ne13:0,
+                1000*(endGPUExecution - startCommitTime));
+            }];
+            
         }
 
 

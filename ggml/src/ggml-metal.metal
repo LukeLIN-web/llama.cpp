@@ -760,12 +760,13 @@ kernel void kernel_rms_norm(
     }
 
     const float mean  = all_sum/ne00;
-    const float scale = 1.0f/sqrt(mean + eps);
+    const float scale = 1.0f/sqrt(mean + eps); //  compute rstd
 
     device float4 * y = (device float4 *) (dst + tgpig*ne00);
     for (int i00 = tpitg; i00 < ne00/4; i00 += ntg) {
-        y[i00] = x[i00] * scale;
+        y[i00] = x[i00] * scale; 
     }
+    // out = x_hat * rms_w 是放在单独算子.
 }
 
 kernel void kernel_group_norm(
@@ -1579,8 +1580,8 @@ kernel void kernel_rope_norm(
             const float x0 = src[0];
             const float x1 = src[1];
 
-            dst_data[0] = x0*cos_theta - x1*sin_theta;
-            dst_data[1] = x0*sin_theta + x1*cos_theta;
+            dst_data[0] = x0*cos_theta - x1*sin_theta; // triton way
+            dst_data[1] = x0*sin_theta + x1*cos_theta; // image part
         } else {
             device const T * const src = (device T *)((device char *) src0 + i3*nb03 + i2*nb02 + i1*nb01 + i0*nb00);
             device       T * dst_data  = (device T *)((device char *)  dst + i3*nb3  + i2*nb2  + i1*nb1  + i0*nb0);
@@ -1656,8 +1657,8 @@ kernel void kernel_rope_neox(
             const float x0 = src[0];
             const float x1 = src[n_dims/2];
 
-            dst_data[0]        = x0*cos_theta - x1*sin_theta;
-            dst_data[n_dims/2] = x0*sin_theta + x1*cos_theta;
+            dst_data[0]        = x0*cos_theta - x1*sin_theta; // real part
+            dst_data[n_dims/2] = x0*sin_theta + x1*cos_theta; // 为什么是 n_dims/2?
         } else {
             device const T * const src = (device T *)((device char *) src0 + i3*nb03 + i2*nb02 + i1*nb01 + i0*nb00);
             device       T * dst_data  = (device T *)((device char *)  dst + i3*nb3  + i2*nb2  + i1*nb1  + i0*nb0);

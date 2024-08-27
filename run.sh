@@ -46,5 +46,5 @@ runop(){
 }
 
 clear
-run_llama
-# runop
+# run_llama
+runop

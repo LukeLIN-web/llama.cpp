@@ -184,9 +184,9 @@ if __name__ == "__main__":
 
     input_filename_part = input_filename[13:16]
 
-    extract_last(input_filename,os.path.join(logs_dir, 'avgtime.csv'))
+    # extract_last(input_filename,os.path.join(logs_dir, 'avgtime.csv'))
 
-    # grep_op_name_to_csv(input_filename, os.path.join(logs_dir, f'{input_filename_part}.csv'))
+    grep_op_name_to_csv(input_filename, os.path.join(logs_dir, f'{input_filename_part}.csv'))
     # grep_firstlast30(os.path.join(logs_dir, f'{input_filename_part}.csv'), os.path.join(logs_dir, f'{input_filename_part}_30.csv'))
     # if input_filename_part[0] =="1":
     #     grep_flash_attn_ext(os.path.join(logs_dir, f'{input_filename_part}op.csv'), os.path.join(logs_dir, f'{input_filename_part}optime.csv'))
