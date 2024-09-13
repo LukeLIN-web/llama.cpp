@@ -61,6 +61,7 @@ llama-batched-swift
 /rpc-server
 out/
 tmp/
+autogen-*.md
 
 # Deprecated
 
@@ -130,3 +131,6 @@ poetry.toml
 
 # Scripts
 !/scripts/install-oneapi.bat
+
+# Test models for lora adapters
+/lora-tests
